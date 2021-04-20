@@ -1,16 +1,12 @@
 import React from "react";
+import Dashboard from "../Dashboard/Dashboard";
 import SignIn from "../SignIn/SignIn";
 import useLocalStorage from "../../hooks/useLocalStorage";
 
 const App = () => {
   const [id, setId] = useLocalStorage("id");
 
-  return (
-    <React.Fragment>
-      {id ? <h3>ID: {id}</h3> : null}
-      <SignIn onIdSubmit={setId} />
-    </React.Fragment>
-  );
+  return id ? <Dashboard id={id} /> : <SignIn onIdSubmit={setId} />;
 };
 
 export default App;
