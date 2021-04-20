@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import SignIn from "../SignIn/SignIn";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 const App = () => {
-  const [id, setId] = useState("");
+  const [id, setId] = useLocalStorage("id");
 
   return (
     <React.Fragment>

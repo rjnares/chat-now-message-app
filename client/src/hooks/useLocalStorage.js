@@ -1,0 +1,24 @@
+import { useEffect, useState } from "react";
+
+const useLocalStorage = (key, initialValue) => {
+  const APP_PREFIX = "chat-now-message-app-";
+  const prefixedKey = APP_PREFIX + key;
+  const [value, setValue] = useState(() => {
+    const jsonValue = localStorage.getItem(prefixedKey);
+    if (jsonValue) return JSON.parse(jsonValue);
+
+    if (typeof initialValue === "function") {
+      return initialValue();
+    } else {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(prefixedKey, JSON.stringify(value));
+  }, [prefixedKey, value]);
+
+  return [value, setValue];
+};
+
+export default useLocalStorage;
