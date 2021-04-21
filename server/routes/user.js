@@ -26,9 +26,7 @@ router.post(
     // Check for validation errors in request; if any, let requester know
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        errors: errors.array(),
-      });
+      return res.status(400).json({ errors: errors.array() });
     }
 
     // Extract first name, last name, username, email,
@@ -36,16 +34,24 @@ router.post(
     const { firstName, lastName, username, email, password } = req.body;
 
     try {
-      // Check if user already exists in database
-      let user = await User.findOne({ email });
-      if (user) {
-        return res.status(400).json({
-          message: "User already exists",
-        });
+      // Check if user with email already exists in database
+      let userWithEmail = await User.findOne({ email });
+      if (userWithEmail) {
+        return res
+          .status(400)
+          .json({ message: "User with this email already exists" });
+      }
+
+      // Check if user with username already exists in database
+      let userWithUsername = await User.findOne({ username });
+      if (userWithUsername) {
+        return res
+          .status(400)
+          .json({ message: "User with this username already exists" });
       }
 
       // If user does not exist, create new user
-      user = new User({
+      let user = new User({
         firstName,
         lastName,
         username,
@@ -60,27 +66,58 @@ router.post(
       // Save new user (with encrypted password) to database
       await user.save();
 
-      const payload = {
-        user: {
-          id: user.id,
-        },
-      };
+      const payload = { user: { id: user.id } };
 
-      // Sign in new user for 1 hour and return new user ID in payload
-      jwt.sign(
-        payload,
-        "randomString",
-        {
-          expiresIn: "1h",
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.status(200).json({ user, token });
-        }
-      );
-    } catch (err) {
-      console.log(err.message);
-      res.status(500).send("Error in signup");
+      // Sign in new user for 1 hour and return user & token in response
+      jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
+        if (err) throw err;
+        res.status(200).json({ user, token });
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error in signup" });
+    }
+  }
+);
+
+router.post(
+  "/signin",
+  [
+    check("email", "Please enter a valid email").isEmail(),
+    check("password", "Please enter a valid password").isLength({ min: 6 }),
+  ],
+  async (req, res) => {
+    // Check for validation errors in request; if any, let requester know
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Extract email and password from body of request
+    const { email, password } = req.body;
+    try {
+      // Check if user exists in database
+      let user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "User does not exist" });
+      }
+
+      // Compare password from body with password in database
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Incorrect password" });
+      }
+
+      const payload = { user: { id: user.id } };
+
+      // Sign in new user for 1 hour and return user & token in response
+      jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
+        if (err) throw err;
+        res.status(200).json({ user, token });
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error in signin" });
     }
   }
 );
