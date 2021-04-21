@@ -4,6 +4,9 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 
+// Use user route middleware
+const user = require("./routes/user");
+
 // Use parser middleware for parsing body data
 app.use(express.json()); // parse app/json
 app.use(express.urlencoded({ extended: true })); // parse app/x-www-form-urlencoded
@@ -28,6 +31,13 @@ const io = require("socket.io")(server, {
 app.get("/", (req, res) => {
   res.json({ message: "API Working" });
 });
+
+/**
+ * Router middleware
+ * Router - /user/*
+ * Method - *
+ */
+app.use("/user", user);
 
 // Listen on the 'connection' event for incoming sockets
 io.on("connection", (socket) => {
