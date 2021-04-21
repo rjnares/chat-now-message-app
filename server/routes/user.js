@@ -1,4 +1,3 @@
-// route for user registration will be '/user/signup'
 const express = require("express");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -7,12 +6,17 @@ const router = express.Router();
 
 const User = require("../model/User");
 
+// auth middleware will be used to verify the token and
+// retrieve the user based on the token payload
+const auth = require("../middleware/auth");
+
 /**
  * @method - POST
  * @param - /signup
  * @description - User signup
  */
 
+// route for user registration will be '/user/signup'
 router.post(
   "/signup",
   [
@@ -68,10 +72,11 @@ router.post(
 
       const payload = { user: { id: user.id } };
 
-      // Sign in new user for 1 hour and return user & token in response
+      // Sign payload into JSON Web Token set to expire in 1 hour
+      // Will use token to retrieve signed in user
       jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
         if (err) throw err;
-        res.status(200).json({ user, token });
+        res.status(200).json({ token });
       });
     } catch (error) {
       console.log(error);
@@ -80,6 +85,13 @@ router.post(
   }
 );
 
+/**
+ * @method - POST
+ * @param - /signin
+ * @description - User signin
+ */
+
+// route for user registration will be '/user/signin'
 router.post(
   "/signin",
   [
@@ -110,10 +122,11 @@ router.post(
 
       const payload = { user: { id: user.id } };
 
-      // Sign in new user for 1 hour and return user & token in response
+      // Sign payload into JSON Web Token set to expire in 1 hour
+      // Will use token to retrieve signed in user
       jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
         if (err) throw err;
-        res.status(200).json({ user, token });
+        res.status(200).json({ token });
       });
     } catch (error) {
       console.log(error);
@@ -121,5 +134,23 @@ router.post(
     }
   }
 );
+
+/**
+ * @method - GET
+ * @description - Get LoggedIn User
+ * @param - /user/me
+ */
+
+// route to retrieve user will be '/user/me'
+router.get("/me", auth, async (req, res) => {
+  try {
+    // decoded user is getting fetched from middleware after token auth
+    const user = await User.findById(req.user.id);
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: "Error fetching user" });
+  }
+});
 
 module.exports = router;
