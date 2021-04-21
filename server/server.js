@@ -4,6 +4,20 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 
+// Use user route middleware
+const user = require("./routes/user");
+
+// Use parser middleware for parsing body data
+app.use(express.json()); // parse app/json
+app.use(express.urlencoded({ extended: true })); // parse app/x-www-form-urlencoded
+
+// Initiate Mongo Server
+const InitiateMongoServer = require("./config/db");
+InitiateMongoServer();
+
+// Set port that the server will listen on
+const PORT = process.env.PORT || 5000;
+
 // Integrate Socket.IO and enable Cross-Origin Resource Sharing (CORS)
 const io = require("socket.io")(server, {
   cors: {
@@ -13,10 +27,17 @@ const io = require("socket.io")(server, {
 });
 
 // Simple route handler to test if server
-// is running on localhost:5000
+// is running on localhost:PORT
 app.get("/", (req, res) => {
-  res.send("<h1>Hello Server</h1>");
+  res.json({ message: "API Working" });
 });
+
+/**
+ * Router middleware
+ * Router - /user/*
+ * Method - *
+ */
+app.use("/user", user);
 
 // Listen on the 'connection' event for incoming sockets
 io.on("connection", (socket) => {
@@ -47,7 +68,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Set server to listen on localhost:5000
-server.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+// Set server to listen on localhost:PORT
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
