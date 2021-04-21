@@ -4,6 +4,14 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 
+// Use parser middleware for parsing body data
+app.use(express.json()); // parse app/json
+app.use(express.urlencoded({ extended: true })); // parse app/x-www-form-urlencoded
+
+// Initiate Mongo Server
+const InitiateMongoServer = require("./config/db");
+InitiateMongoServer();
+
 // Set port that the server will listen on
 const PORT = process.env.PORT || 5000;
 
