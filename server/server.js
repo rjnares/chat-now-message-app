@@ -4,6 +4,10 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 
+// Enable CORS for user routes
+const cors = require("cors");
+app.use(cors());
+
 // Use user route middleware
 const user = require("./routes/user");
 

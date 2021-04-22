@@ -95,7 +95,7 @@ router.post(
 router.post(
   "/signin",
   [
-    check("email", "Please enter a valid email").isEmail(),
+    check("username", "Please enter a valid username").not().isEmpty(),
     check("password", "Please enter a valid password").isLength({ min: 6 }),
   ],
   async (req, res) => {
@@ -105,11 +105,11 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Extract email and password from body of request
-    const { email, password } = req.body;
+    // Extract username and password from body of request
+    const { username, password } = req.body;
     try {
       // Check if user exists in database
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ username });
       if (!user) {
         return res.status(400).json({ message: "User does not exist" });
       }
