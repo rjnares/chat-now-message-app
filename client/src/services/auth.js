@@ -4,21 +4,7 @@ const API = axios.create({
   baseURL: `${process.env.REACT_APP_SERVER_URL}/user/`,
 });
 
-export const signup = ({ firstName, lastName, username, email, password }) => {
-  API.post("signup", {
-    firstName,
-    lastName,
-    username,
-    email,
-    password,
-  })
-    .then(function (response) {
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log(error.message);
-    });
-};
+export const signup = (data) => API.post("signup", data);
 
 export const signin = ({ username, password }) => {
   API.post("signin", {

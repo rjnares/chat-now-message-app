@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 import * as api from "../services/auth";
 
@@ -6,22 +7,25 @@ const AuthContext = React.createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-const APP_PREFIX = "chat-now-message-app-";
+const TOKEN = "token";
 
 export const AuthProvider = (props) => {
-  const [token, setToken] = useState(
-    JSON.parse(localStorage.getItem(APP_PREFIX + "token"))
-  );
+  const [token, setToken] = useLocalStorage(TOKEN);
   const [data, setData] = useState({ user: null });
 
   const signup = async (formData) => {
+    let serverError = { message: "" };
+
     try {
       const response = await api.signup(formData);
 
-      // Response should contain response.data.token then save setToken
-      console.log(response);
+      // Save token in local storage
+      setToken(response.data.token);
     } catch (error) {
-      console.log(error);
+      serverError = error.response.data;
+      console.log(serverError);
+    } finally {
+      return serverError;
     }
   };
 
@@ -37,9 +41,6 @@ export const AuthProvider = (props) => {
   };
 
   const signout = () => {
-    localStorage.removeItem(APP_PREFIX + "token");
-    localStorage.removeItem(APP_PREFIX + "user");
-
     setToken(null);
     setData({ user: null });
   };

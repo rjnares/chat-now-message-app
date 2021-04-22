@@ -3,9 +3,15 @@ import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+
+import { useAuth } from "../../contexts/AuthProvider";
 
 const UnauthenticatedApp = () => {
+  const { signup } = useAuth();
+
   const [isSignup, setIsSignup] = useState(true);
+  const [inputError, setInputError] = useState("");
 
   const firstNameRef = useRef();
   const lastNameRef = useRef();
@@ -23,15 +29,33 @@ const UnauthenticatedApp = () => {
     verifyPasswordRef.current.value = "123456";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(firstNameRef.current.value);
-    console.log(lastNameRef.current.value);
-    console.log(usernameRef.current.value);
-    console.log(emailRef.current.value);
-    console.log(passwordRef.current.value);
-    console.log(verifyPasswordRef.current.value);
+    const errors = [];
+
+    if (passwordRef.current.value !== verifyPasswordRef.current.value)
+      errors.push("passwords do not match");
+    if (passwordRef.current.value.length < 6)
+      errors.push("password is less than 6 characters");
+
+    if (errors.length) {
+      setInputError(`Error: ${errors[0]}`);
+      return;
+    }
+
+    const formData = {
+      firstName: firstNameRef.current.value,
+      lastName: lastNameRef.current.value,
+      username: usernameRef.current.value,
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+    };
+
+    const { message } = await signup(formData);
+
+    if (message) setInputError(`Error: ${message}`);
+    else setInputError("");
   };
 
   return (
@@ -46,6 +70,11 @@ const UnauthenticatedApp = () => {
         >
           Sign Up
         </Card.Title>
+        {inputError && (
+          <Alert className="d-flex justify-content-center p-1" variant="danger">
+            {inputError}
+          </Alert>
+        )}
         <Form onSubmit={handleSubmit}>
           <Form.Row>
             <Form.Group as={Col} controlId="formFirstName">
