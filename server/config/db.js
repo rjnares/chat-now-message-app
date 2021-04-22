@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
-const MONGO_URI =
-  "mongodb+srv://robby_jn:robby_jnm0ng0@cluster0.uvk7c.mongodb.net/chat-now?retryWrites=true&w=majority";
+// Use dotenv to avoid exposing URIs
+require("dotenv").config();
+
+const MONGO_URI = process.env.MONGO_URI;
 
 const InitiateMongoServer = async () => {
   try {
