@@ -4,7 +4,10 @@ const jwt = require("jsonwebtoken");
 // retrieve the user based on the token payload
 module.exports = function (req, res, next) {
   const token = req.header("token");
-  if (!token) return res.status(401).json({ message: "Auth error" });
+  if (!token)
+    return res
+      .status(401)
+      .json({ message: "No token included in request header" });
 
   try {
     const decoded = jwt.verify(token, "randomString");
@@ -12,6 +15,6 @@ module.exports = function (req, res, next) {
     next();
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Invalid token" });
+    res.status(500).json({ message: "Token is invalid or expired" });
   }
 };

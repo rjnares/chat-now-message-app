@@ -4,6 +4,9 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 
+// Use dotenv to avoid exposing URIs
+require("dotenv").config();
+
 // Enable CORS for user routes
 const cors = require("cors");
 app.use(cors());
@@ -25,7 +28,7 @@ const PORT = process.env.PORT || 5000;
 // Integrate Socket.IO and enable Cross-Origin Resource Sharing (CORS)
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.REQUESTS_ORIGIN,
     methods: ["GET", "POST"],
   },
 });
@@ -74,5 +77,5 @@ io.on("connection", (socket) => {
 
 // Set server to listen on localhost:PORT
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

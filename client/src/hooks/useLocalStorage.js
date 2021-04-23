@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useLocalStorage = (key, initialValue) => {
+const useLocalStorage = (key, initialValue = null) => {
   const APP_PREFIX = "chat-now-message-app-";
   const prefixedKey = APP_PREFIX + key;
   const [value, setValue] = useState(() => {
