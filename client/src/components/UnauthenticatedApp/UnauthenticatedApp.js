@@ -46,6 +46,8 @@ const UnauthenticatedApp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setInputError("");
+
     if (isSignup) {
       const errors = [];
 
@@ -83,7 +85,6 @@ const UnauthenticatedApp = () => {
     }
 
     if (result.message) setInputError(`Error: ${result.message}`);
-    else setInputError("");
   };
 
   return (

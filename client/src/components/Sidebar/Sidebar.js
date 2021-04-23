@@ -9,10 +9,14 @@ import Contacts from "../Contacts/Contacts";
 import NewConversationModal from "../NewConversationModal/NewConversationModal";
 import NewContactModal from "../NewContactModal/NewContactModal";
 
+import { useUser } from "../../contexts/UserProvider";
+
 const CONVERSATIONS_KEY = "conversations";
 const CONTACTS_KEY = "contacts";
 
-const Sidebar = ({ id }) => {
+const Sidebar = () => {
+  const user = useUser();
+  const id = user._id;
   const [activeKey, setActiveKey] = useState(CONVERSATIONS_KEY);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

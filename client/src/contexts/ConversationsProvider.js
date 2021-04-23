@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
+
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useContacts } from "./ContactsProvider";
 import { useSocket } from "./SocketProvider";
+import { useUser } from "./UserProvider";
 
 const ConversationsContext = React.createContext();
 
@@ -9,7 +11,9 @@ export const useConversations = () => {
   return useContext(ConversationsContext);
 };
 
-export const ConversationsProvider = ({ id, children }) => {
+export const ConversationsProvider = ({ children }) => {
+  const user = useUser();
+  const id = user._id;
   const [conversations, setConversations] = useLocalStorage(
     "conversations",
     []
