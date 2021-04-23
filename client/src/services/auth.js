@@ -5,17 +5,5 @@ const API = axios.create({
 });
 
 export const signup = (data) => API.post("signup", data);
+export const signin = (data) => API.post("signin", data);
 export const fetchUser = (token) => API.get("me", { headers: { token } });
-
-export const signin = ({ username, password }) => {
-  API.post("signin", {
-    username,
-    password,
-  })
-    .then(function (response) {
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log(error.message);
-    });
-};

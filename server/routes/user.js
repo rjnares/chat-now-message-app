@@ -76,48 +76,35 @@ router.post("/signup", async (req, res) => {
  */
 
 // route for user registration will be '/user/signin'
-router.post(
-  "/signin",
-  [
-    check("username", "Please enter a valid username").not().isEmpty(),
-    check("password", "Please enter a valid password").isLength({ min: 6 }),
-  ],
-  async (req, res) => {
-    // Check for validation errors in request; if any, let requester know
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+router.post("/signin", async (req, res) => {
+  // Extract username and password from body of request
+  const { email, password } = req.body;
+  try {
+    // Check if user exists in database
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "email not registered" });
     }
 
-    // Extract username and password from body of request
-    const { username, password } = req.body;
-    try {
-      // Check if user exists in database
-      let user = await User.findOne({ username });
-      if (!user) {
-        return res.status(400).json({ message: "User does not exist" });
-      }
-
-      // Compare password from body with password in database
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
-
-      const payload = { user: { id: user.id } };
-
-      // Sign payload into JSON Web Token set to expire in 1 hour
-      // Will use token to retrieve signed in user
-      jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
-        if (err) throw err;
-        res.status(200).json({ token });
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "something went wrong with signin" });
+    // Compare password from body with password in database
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "incorrect password" });
     }
+
+    const payload = { user: { id: user.id } };
+
+    // Sign payload into JSON Web Token set to expire in 1 hour
+    // Will use token to retrieve signed in user
+    jwt.sign(payload, "randomString", { expiresIn: "1h" }, (err, token) => {
+      if (err) throw err;
+      res.status(200).json({ token });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong with signin" });
   }
-);
+});
 
 /**
  * @method - GET

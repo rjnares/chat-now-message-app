@@ -30,13 +30,18 @@ export const AuthProvider = (props) => {
   };
 
   const signin = async (formData) => {
+    let serverError = { message: "" };
+
     try {
       const response = await api.signin(formData);
 
-      // Response should contain response.data.token then save setToken
-      console.log(response);
+      // Save token in local storage
+      setToken(response.data.token);
     } catch (error) {
-      console.log(error);
+      serverError = error.response.data;
+      console.log(serverError);
+    } finally {
+      return serverError;
     }
   };
 
