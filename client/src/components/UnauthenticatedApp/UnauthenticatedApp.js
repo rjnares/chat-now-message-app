@@ -31,17 +31,17 @@ const UnauthenticatedApp = () => {
     }
   };
 
-  const printFormFields = () => {
-    console.log("Email: " + emailRef.current?.value);
-    console.log("Password: " + passwordRef.current?.value);
+  // const printFormFields = () => {
+  //   console.log("Email: " + emailRef.current?.value);
+  //   console.log("Password: " + passwordRef.current?.value);
 
-    if (!isSignup) {
-      console.log("Verify Password: " + verifyPasswordRef.current?.value);
-      console.log("First Name: " + firstNameRef.current?.value);
-      console.log("Last Name: " + lastNameRef.current?.value);
-      console.log("Username: " + usernameRef.current?.value);
-    }
-  };
+  //   if (!isSignup) {
+  //     console.log("Verify Password: " + verifyPasswordRef.current?.value);
+  //     console.log("First Name: " + firstNameRef.current?.value);
+  //     console.log("Last Name: " + lastNameRef.current?.value);
+  //     console.log("Username: " + usernameRef.current?.value);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
