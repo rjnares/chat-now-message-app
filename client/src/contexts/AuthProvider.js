@@ -47,15 +47,31 @@ export const AuthProvider = (props) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const response = await api.fetchUser({ token });
+      let serverError = { message: "" };
+      try {
+        const response = await api.fetchUser(token);
 
-      // Response should contain response.data.user then save setData
-      console.log(response);
+        // Save user data in memory
+        setData(response.data);
+      } catch (error) {
+        // If error occurs, we will be in loading state
+        serverError = error.response.data;
+        console.log(serverError);
+
+        if (serverError.message === "Token is invalid or expired") {
+          // clear token from local storage since we need new one from signup/signin
+          // if do not clear token from local storage, then 'UnauthenticatedApp' (which
+          // is used for signup/signin) will not render and we will not be able to get
+          // a new one since we will be stuck with the old token
+          setToken(null);
+        }
+      }
     };
 
     if (token) getUser();
-  }, [token]);
+  }, [token, setToken]);
 
+  // Return loading message if we don't have token AND user data
   if (!data.user && token) {
     return "Loading...";
   }

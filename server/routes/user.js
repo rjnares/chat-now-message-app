@@ -114,7 +114,7 @@ router.post(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ message: "Error in signin" });
+      res.status(500).json({ message: "something went wrong with signin" });
     }
   }
 );
@@ -133,7 +133,7 @@ router.get("/me", auth, async (req, res) => {
     res.status(200).json({ user });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: "Error fetching user" });
+    res.status(404).json({ message: "something went wrong fetching user" });
   }
 });
 
