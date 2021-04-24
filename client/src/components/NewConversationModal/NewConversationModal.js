@@ -46,7 +46,9 @@ const NewConversationModal = ({ closeModal }) => {
               />
             </Form.Group>
           ))}
-          <Button type="submit">Create</Button>
+          <Button type="submit" disabled={!selectedContactIds.length}>
+            Create
+          </Button>
         </Form>
       </Modal.Body>
     </React.Fragment>
