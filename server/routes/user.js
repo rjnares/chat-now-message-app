@@ -10,12 +10,6 @@ const User = require("../model/User");
 // retrieve the user based on the token payload
 const auth = require("../middleware/auth");
 
-/**
- * @method - POST
- * @param - /signup
- * @description - User signup
- */
-
 // route for user registration will be '/user/signup'
 router.post("/signup", async (req, res) => {
   // Extract first name, last name, username, email,
@@ -69,12 +63,6 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-/**
- * @method - POST
- * @param - /signin
- * @description - User signin
- */
-
 // route for user registration will be '/user/signin'
 router.post("/signin", async (req, res) => {
   // Extract username and password from body of request
@@ -106,12 +94,6 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-/**
- * @method - GET
- * @description - Get LoggedIn User
- * @param - /user/me
- */
-
 // route to retrieve user will be '/user/me'
 router.get("/me", auth, async (req, res) => {
   try {
@@ -121,6 +103,85 @@ router.get("/me", auth, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(404).json({ message: "something went wrong fetching user" });
+  }
+});
+
+// route to post contact will be '/user/contacts'
+router.post("/contacts", auth, async (req, res) => {
+  // Extract contact email from body of request
+  const { email } = req.body;
+
+  try {
+    // Check if contact with email already exists in database
+    const contactWithEmail = await User.findOne({ email });
+    if (!contactWithEmail) {
+      return res.status(404).json({ message: "user is not registered" });
+    }
+
+    // Get our user
+    const user = await User.findById(req.user.id);
+
+    // Check if email already exists in contact list
+    const isAlreadyContact = user.contacts.includes(email);
+    if (isAlreadyContact) {
+      return res.status(400).json({ message: "user is already a contact" });
+    }
+
+    // Set new contacts list that includes new email
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { contacts: [...user.contacts, email] },
+      { new: true }
+    );
+
+    const updatedContacts = updatedUser.contacts;
+
+    res.status(200).json({ updatedContacts });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "something went wrong adding new contact" });
+  }
+});
+
+// route to delete contact will be '/user/contacts'
+router.delete("/contacts/:email", auth, async (req, res) => {
+  // Get email from params
+  const { email } = req.params;
+
+  try {
+    // Get our user
+    const user = await User.findById(req.user.id);
+
+    // Check if email exists in contact list
+    const isContact = user.contacts.includes(email);
+    if (!isContact) {
+      return res.status(400).json({ message: "user is not a contact" });
+    }
+
+    // Set new contacts list that does not include email
+    const index = user.contacts.indexOf(email);
+    if (index < 0) {
+      return res
+        .status(400)
+        .json({ message: "something went wrong removing contact" });
+    }
+
+    user.contacts.splice(index, 1);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { contacts: user.contacts },
+      { new: true }
+    );
+
+    updatedContacts = updatedUser.contacts;
+
+    res.status(200).json({ updatedContacts });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong removing contact" });
   }
 });
 

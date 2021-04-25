@@ -25,6 +25,7 @@ const UserSchema = mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  contacts: [String],
 });
 
 module.exports = mongoose.model("user", UserSchema);
