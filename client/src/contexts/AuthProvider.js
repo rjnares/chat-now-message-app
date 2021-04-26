@@ -85,6 +85,18 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const getContact = async (contact) => {
+    let result = { message: "", contact: null };
+    try {
+      const response = await api.fetchContact(token, contact);
+      result.contact = response.data.contactInfo;
+    } catch (error) {
+      result.message = error.response.data.message;
+    } finally {
+      return result;
+    }
+  };
+
   useEffect(() => {
     const getUser = async () => {
       let serverError = { message: "" };
@@ -118,7 +130,15 @@ export const AuthProvider = (props) => {
 
   return (
     <AuthContext.Provider
-      value={{ data, signup, signin, signout, createContact, removeContact }}
+      value={{
+        data,
+        signup,
+        signin,
+        signout,
+        createContact,
+        removeContact,
+        getContact,
+      }}
       {...props}
     />
   );

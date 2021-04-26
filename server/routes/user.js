@@ -106,7 +106,7 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
-// route to post contact will be '/user/contacts'
+// route to post contact will be '/user/contacts/:contact'
 router.post("/contacts", auth, async (req, res) => {
   // Extract contact email from body of request
   const { email } = req.body;
@@ -187,6 +187,40 @@ router.delete("/contacts/:contact", auth, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "something went wrong removing contact" });
+  }
+});
+
+// route to retrieve contact info will be '/user/contact/:contact'
+router.get("/contact/:contact", auth, async (req, res) => {
+  const { contact } = req.params;
+  try {
+    const contactUser = await User.findOne({ email: contact });
+    if (!contactUser) {
+      return res
+        .status(404)
+        .json({ message: `could not find contact info for '${contact}'` });
+    }
+
+    // Get our user
+    const user = await User.findById(req.user.id);
+
+    // Check if contact exists in contact list
+    const isContact = user.contacts.includes(contact);
+    if (!isContact) {
+      return res.status(400).json({ message: `'${contact}' is not a contact` });
+    }
+
+    const contactInfo = {
+      name: `${contactUser.firstName} ${contactUser.lastName}`,
+      username: contactUser.username,
+      email: contactUser.email,
+    };
+    res.status(200).json({ contactInfo });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(404)
+      .json({ message: "something went wrong fetching contact info" });
   }
 });
 

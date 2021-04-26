@@ -33,7 +33,9 @@ const NewConversationModal = ({ closeModal }) => {
 
   return (
     <React.Fragment>
-      <Modal.Header closeButton>Create New Conversation</Modal.Header>
+      <Modal.Header closeButton>
+        <Modal.Title>Create New Conversation</Modal.Title>
+      </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           {contacts.map((contact) => (

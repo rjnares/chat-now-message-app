@@ -11,3 +11,6 @@ export const addContact = (token, email) =>
   API.post("contacts", email, { headers: { token } });
 export const deleteContact = (token, contact) =>
   API.delete(`contacts/${contact}`, { headers: { token } });
+
+export const fetchContact = (token, contact) =>
+  API.get(`contact/${contact}`, { headers: { token } });

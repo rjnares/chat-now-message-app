@@ -36,7 +36,9 @@ const NewContactModal = ({ closeModal }) => {
 
   return (
     <React.Fragment>
-      <Modal.Header closeButton>New Contact</Modal.Header>
+      <Modal.Header closeButton>
+        <Modal.Title>New Contact</Modal.Title>
+      </Modal.Header>
       <Modal.Body>
         {submitMessage && (
           <Alert
@@ -48,7 +50,9 @@ const NewContactModal = ({ closeModal }) => {
         )}
         <Form onSubmit={handleSubmit}>
           <Form.Group>
-            <Form.Label>Email</Form.Label>
+            <Form.Label>
+              <strong>Email</strong>
+            </Form.Label>
             <Form.Control type="email" ref={emailRef} required></Form.Control>
           </Form.Group>
           <Button type="submit">Add Contact</Button>
