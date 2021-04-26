@@ -151,22 +151,22 @@ router.post("/contacts", auth, async (req, res) => {
 });
 
 // route to delete contact will be '/user/contacts'
-router.delete("/contacts/:email", auth, async (req, res) => {
-  // Get email from params
-  const { email } = req.params;
+router.delete("/contacts/:contact", auth, async (req, res) => {
+  // Get contact from params
+  const { contact } = req.params;
 
   try {
     // Get our user
     const user = await User.findById(req.user.id);
 
-    // Check if email exists in contact list
-    const isContact = user.contacts.includes(email);
+    // Check if contact exists in contact list
+    const isContact = user.contacts.includes(contact);
     if (!isContact) {
-      return res.status(400).json({ message: "user is not a contact" });
+      return res.status(400).json({ message: `'${contact}' is not a contact` });
     }
 
-    // Set new contacts list that does not include email
-    const index = user.contacts.indexOf(email);
+    // Set new contacts list that does not include contact
+    const index = user.contacts.indexOf(contact);
     if (index < 0) {
       return res
         .status(400)

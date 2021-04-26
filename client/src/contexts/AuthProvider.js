@@ -67,6 +67,24 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const removeContact = async (contact) => {
+    let serverError = { message: "" };
+
+    try {
+      const response = await api.deleteContact(token, contact);
+
+      // Update saved data user contacts
+      setData((prevData) => ({
+        user: { ...prevData.user, contacts: response.data.updatedContacts },
+      }));
+    } catch (error) {
+      serverError = error.response.data;
+      console.log(serverError);
+    } finally {
+      return serverError;
+    }
+  };
+
   useEffect(() => {
     const getUser = async () => {
       let serverError = { message: "" };
@@ -100,7 +118,7 @@ export const AuthProvider = (props) => {
 
   return (
     <AuthContext.Provider
-      value={{ data, signup, signin, signout, createContact }}
+      value={{ data, signup, signin, signout, createContact, removeContact }}
       {...props}
     />
   );

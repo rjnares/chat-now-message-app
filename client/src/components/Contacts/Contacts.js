@@ -2,11 +2,40 @@ import React, { useState } from "react";
 import ListGroup from "react-bootstrap/ListGroup";
 
 import { useUser } from "../../contexts/UserProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
 const Contacts = () => {
   const user = useUser();
+  const { removeContact } = useAuth();
 
   const [selectedContactIndex, setSelectedContactIndex] = useState(-1);
+
+  const [removeMessage, setRemoveMessage] = useState("");
+  const [isRemoveError, setIsRemoveError] = useState(false);
+
+  const handleRemoveContact = async (contact) => {
+    setRemoveMessage("");
+    setIsRemoveError(false);
+
+    const result = await removeContact(contact);
+
+    if (result.message) {
+      // Will want to display this message to user
+      setRemoveMessage(`Error: ${result.message}`);
+      setIsRemoveError(true);
+
+      // For now, we'll just log error and message
+      // TODO: create modal showing contact info with delete
+      // contact button and display error/success message
+      console.log(`Remove Error: ${result.message}`);
+    } else {
+      setRemoveMessage(`Success: '${contact}' has been removed from contacts`);
+      // For now, we'll just log error and message
+      // TODO: create modal showing contact info with delete
+      // contact button and display error/success message
+      console.log(`Success: '${contact}' has been removed from contacts`);
+    }
+  };
 
   return (
     <ListGroup variant="flush">
@@ -26,7 +55,7 @@ const Contacts = () => {
                 role="button"
                 aria-pressed="false"
                 className="ml-auto p-0 pl-1 pr-1 border-0 btn btn-danger"
-                onClick={() => console.log("Button working")}
+                onClick={() => handleRemoveContact(contact)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
