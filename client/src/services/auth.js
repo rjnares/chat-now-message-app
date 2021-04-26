@@ -7,3 +7,5 @@ const API = axios.create({
 export const signup = (data) => API.post("signup", data);
 export const signin = (data) => API.post("signin", data);
 export const fetchUser = (token) => API.get("me", { headers: { token } });
+export const addContact = (token, email) =>
+  API.post("contacts", email, { headers: { token } });

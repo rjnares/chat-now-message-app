@@ -1,37 +1,57 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
-import { useContacts } from "../../contexts/ContactsProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
 const NewContactModal = ({ closeModal }) => {
-  const idRef = useRef();
-  const nameRef = useRef();
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [isSubmitError, setIsSubmitError] = useState(false);
 
-  const { createContact } = useContacts();
+  const emailRef = useRef();
 
-  const handleSubmit = (e) => {
+  const { createContact } = useAuth();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    createContact(idRef.current.value, nameRef.current.value);
-    closeModal();
+    setSubmitMessage("");
+    setIsSubmitError(false);
+
+    const result = await createContact({ email: emailRef.current.value });
+
+    if (result.message) {
+      // Will want to display this message to user
+      setSubmitMessage(`Error: ${result.message}`);
+      setIsSubmitError(true);
+    } else {
+      setSubmitMessage(
+        `Success: new contact '${emailRef.current.value}' has been added`
+      );
+      emailRef.current.value = "";
+    }
   };
 
   return (
     <React.Fragment>
-      <Modal.Header closeButton>Create New Contact</Modal.Header>
+      <Modal.Header closeButton>New Contact</Modal.Header>
       <Modal.Body>
+        {submitMessage && (
+          <Alert
+            className="d-flex justify-content-center p-1"
+            variant={isSubmitError ? "danger" : "success"}
+          >
+            {submitMessage}
+          </Alert>
+        )}
         <Form onSubmit={handleSubmit}>
           <Form.Group>
-            <Form.Label>ID</Form.Label>
-            <Form.Control type="text" ref={idRef} required></Form.Control>
+            <Form.Label>Email</Form.Label>
+            <Form.Control type="email" ref={emailRef} required></Form.Control>
           </Form.Group>
-          <Form.Group>
-            <Form.Label>Name</Form.Label>
-            <Form.Control type="text" ref={nameRef} required></Form.Control>
-          </Form.Group>
-          <Button type="submit">Create</Button>
+          <Button type="submit">Add Contact</Button>
         </Form>
       </Modal.Body>
     </React.Fragment>

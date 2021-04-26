@@ -121,6 +121,11 @@ router.post("/contacts", auth, async (req, res) => {
     // Get our user
     const user = await User.findById(req.user.id);
 
+    // Check if are trying to add ourselves
+    if (email === user.email) {
+      return res.status(400).json({ message: "cannot add self as a contact" });
+    }
+
     // Check if email already exists in contact list
     const isAlreadyContact = user.contacts.includes(email);
     if (isAlreadyContact) {
