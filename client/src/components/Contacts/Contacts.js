@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ListGroup from "react-bootstrap/ListGroup";
 import Modal from "react-bootstrap/Modal";
 
@@ -16,6 +16,10 @@ const Contacts = () => {
   };
 
   const [selectedContactIndex, setSelectedContactIndex] = useState(-1);
+
+  useEffect(() => {
+    setSelectedContactIndex(-1);
+  }, [user]);
 
   return (
     <React.Fragment>
@@ -55,10 +59,7 @@ const Contacts = () => {
         ))}
       </ListGroup>
       <Modal show={isModalOpen} onHide={closeModal}>
-        <ManageContactModal
-          closeModal={closeModal}
-          contact={user.contacts[selectedContactIndex]}
-        />
+        <ManageContactModal contact={user.contacts[selectedContactIndex]} />
       </Modal>
     </React.Fragment>
   );
