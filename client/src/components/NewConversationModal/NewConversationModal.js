@@ -1,32 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
-import { useContacts } from "../../contexts/ContactsProvider";
-import { useConversations } from "../../contexts/ConversationsProvider";
+import { useUser } from "../../contexts/UserProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
-const NewConversationModal = ({ closeModal }) => {
-  const [selectedContactIds, setSelectedContactIds] = useState([]);
+const NewConversationModal = () => {
+  const conversationNameRef = useRef();
 
-  const { contacts } = useContacts();
-  const { createConversation } = useConversations();
+  const user = useUser();
+  const { createConversation } = useAuth();
 
-  const handleSubmit = (e) => {
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [isSubmitError, setIsSubmitError] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState([]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    createConversation(selectedContactIds);
-    closeModal();
+    setSubmitMessage("");
+    setIsSubmitError(false);
+
+    const result = await createConversation(conversationNameRef.current.value, [
+      ...selectedContacts,
+      user.email,
+    ]);
+
+    if (result.message) {
+      setIsSubmitError(true);
+      setSubmitMessage(`Error: ${result.message}`);
+    } else {
+      setSelectedContacts([]);
+      setSubmitMessage(
+        `Success: new conversation '${result.conversation.name}' has been created`
+      );
+      conversationNameRef.current.value = "";
+      // TODO: Update conversations
+    }
   };
 
-  const handleCheckboxChange = (contactId) => {
-    setSelectedContactIds((prevSelectedContactIds) => {
-      if (prevSelectedContactIds.includes(contactId)) {
-        return prevSelectedContactIds.filter((prevId) => {
-          return contactId !== prevId;
+  const handleCheckboxChange = (contact) => {
+    setSelectedContacts((prevSelectedContacts) => {
+      if (prevSelectedContacts.includes(contact)) {
+        return prevSelectedContacts.filter((prevContact) => {
+          return contact !== prevContact;
         });
       } else {
-        return [...prevSelectedContactIds, contactId];
+        return [...prevSelectedContacts, contact];
       }
     });
   };
@@ -34,21 +56,40 @@ const NewConversationModal = ({ closeModal }) => {
   return (
     <React.Fragment>
       <Modal.Header closeButton>
-        <Modal.Title>Create New Conversation</Modal.Title>
+        <Modal.Title>New Conversation</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {submitMessage && (
+          <Alert
+            className="d-flex justify-content-center p-1"
+            variant={isSubmitError ? "danger" : "success"}
+          >
+            {submitMessage}
+          </Alert>
+        )}
         <Form onSubmit={handleSubmit}>
-          {contacts.map((contact) => (
-            <Form.Group controlId={contact.id} key={contact.id}>
+          <Form.Group controlId="conversationName">
+            <Form.Label>Conversation Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter a name for this conversation"
+              required
+              ref={conversationNameRef}
+            />
+          </Form.Group>
+          <Form.Group controlId="chooseRecipients">
+            <Form.Label>Choose Recipients</Form.Label>
+            {user.contacts.map((contact) => (
               <Form.Check
                 type="checkbox"
-                value={selectedContactIds.includes(contact.id)}
-                label={contact.name}
-                onChange={() => handleCheckboxChange(contact.id)}
+                checked={selectedContacts.includes(contact)}
+                label={contact}
+                onChange={() => handleCheckboxChange(contact)}
+                key={contact}
               />
-            </Form.Group>
-          ))}
-          <Button type="submit" disabled={!selectedContactIds.length}>
+            ))}
+          </Form.Group>
+          <Button type="submit" disabled={!selectedContacts.length}>
             Create
           </Button>
         </Form>

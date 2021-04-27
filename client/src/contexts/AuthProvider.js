@@ -97,6 +97,30 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const createConversation = async (name, recipients) => {
+    let result = { message: "", conversation: null };
+    try {
+      const response = await api.postConversation(token, name, recipients);
+      result.conversation = response.data.conversation;
+    } catch (error) {
+      result.message = error.response.data.message;
+    } finally {
+      return result;
+    }
+  };
+
+  const fetchConversations = async () => {
+    let result = { message: "", conversations: null };
+    try {
+      const response = await api.getConversations(token);
+      result.conversations = response.data;
+    } catch (error) {
+      result.message = error.response.data.message;
+    } finally {
+      return result;
+    }
+  };
+
   useEffect(() => {
     const getUser = async () => {
       let serverError = { message: "" };
@@ -138,6 +162,8 @@ export const AuthProvider = (props) => {
         createContact,
         removeContact,
         getContact,
+        createConversation,
+        fetchConversations,
       }}
       {...props}
     />

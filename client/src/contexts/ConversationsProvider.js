@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 
 import useLocalStorage from "../hooks/useLocalStorage";
-import { useContacts } from "./ContactsProvider";
 import { useSocket } from "./SocketProvider";
 import { useUser } from "./UserProvider";
 
@@ -13,17 +12,17 @@ export const useConversations = () => {
 
 export const ConversationsProvider = ({ children }) => {
   const user = useUser();
+
   const id = user._id;
+
+  const socket = useSocket();
+
+  const [selectedConversationIndex, setSelectedConversationIndex] = useState(0);
+
   const [conversations, setConversations] = useLocalStorage(
     "conversations",
     []
   );
-
-  const [selectedConversationIndex, setSelectedConversationIndex] = useState(0);
-
-  const { contacts } = useContacts();
-
-  const socket = useSocket();
 
   const createConversation = (recipients) => {
     setConversations((prevConversations) => {
@@ -33,6 +32,7 @@ export const ConversationsProvider = ({ children }) => {
 
   const addMessageToConversation = useCallback(
     ({ recipients, text, sender }) => {
+      // TODO: Save message to convo
       setConversations((prevConversations) => {
         let madeChange = false;
         const newMessage = { sender, text };
@@ -71,18 +71,18 @@ export const ConversationsProvider = ({ children }) => {
 
   const formattedConversations = conversations.map((conversation, index) => {
     const recipients = conversation.recipients.map((recipient) => {
-      const contact = contacts.find((contact) => {
-        return contact.id === recipient;
+      const contact = user.contacts.find((contact) => {
+        return contact === recipient;
       });
-      const name = (contact && contact.name) || recipient;
+      const name = contact || recipient;
       return { id: recipient, name };
     });
 
     const messages = conversation.messages.map((message) => {
-      const contact = contacts.find((contact) => {
-        return contact.id === message.sender;
+      const contact = user.contacts.find((contact) => {
+        return contact === message.sender;
       });
-      const name = (contact && contact.name) || message.sender;
+      const name = contact || message.sender;
       const fromMe = id === message.sender;
       return { ...message, senderName: name, fromMe };
     });

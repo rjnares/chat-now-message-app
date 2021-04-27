@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const User = require("../model/User");
+const Conversation = require("../model/Conversation");
 
 // auth middleware will be used to verify the token and
 // retrieve the user based on the token payload
@@ -223,5 +224,80 @@ router.get("/contact/:contact", auth, async (req, res) => {
       .json({ message: "something went wrong fetching contact info" });
   }
 });
+
+// route for conversation post will be '/user/conversation'
+router.post("/conversation", auth, async (req, res) => {
+  const { name, recipients } = req.body;
+
+  try {
+    // Check that a conversation with name and recipients doesn't exist already
+    const conversationByName = await Conversation.findOne({ name });
+    if (conversationByName) {
+      const isExistingConversation = arrayEquality(
+        conversationByName.recipients,
+        recipients
+      );
+
+      if (isExistingConversation) {
+        return res.status(400).json({
+          message: "conversation with given name and recipients already exists",
+        });
+      }
+    }
+
+    let newConversation = new Conversation({ name, recipients });
+
+    const conversation = await newConversation.save();
+
+    // Add conversation id to every recipient
+    recipients.forEach(async (recipient) => {
+      const recipientUser = await User.findOne({ email: recipient });
+      await User.findByIdAndUpdate(recipientUser._id, {
+        conversations: [...recipientUser.conversations, conversation._id],
+      });
+    });
+
+    res.status(200).json({ conversation });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "something went wrong creating conversation" });
+  }
+});
+
+// route to retrieve conversations with user will be '/user/conversations'
+router.get("/conversations", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    const conversations = Promise.all(
+      user.conversations.map(async (c) => {
+        const conversation = await Conversation.findById(c);
+        const formattedConversation = {
+          id: conversation._id,
+          name: conversation.name,
+        };
+        return formattedConversation;
+      })
+    ).then((result) => {
+      res.status(200).json(result);
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: "something went wrong fetching user" });
+  }
+});
+
+const arrayEquality = (a, b) => {
+  if (a.length !== b.length) return false;
+
+  a.sort();
+  b.sort();
+
+  return a.every((element, index) => {
+    return element === b[index];
+  });
+};
 
 module.exports = router;

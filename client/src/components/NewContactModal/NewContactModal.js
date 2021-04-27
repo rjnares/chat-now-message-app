@@ -6,7 +6,7 @@ import Alert from "react-bootstrap/Alert";
 
 import { useAuth } from "../../contexts/AuthProvider";
 
-const NewContactModal = ({ closeModal }) => {
+const NewContactModal = () => {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitError, setIsSubmitError] = useState(false);
 

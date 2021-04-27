@@ -14,3 +14,9 @@ export const deleteContact = (token, contact) =>
 
 export const fetchContact = (token, contact) =>
   API.get(`contact/${contact}`, { headers: { token } });
+
+export const postConversation = (token, name, recipients) =>
+  API.post("conversation", { name, recipients }, { headers: { token } });
+
+export const getConversations = (token) =>
+  API.get("conversations", { headers: { token } });
