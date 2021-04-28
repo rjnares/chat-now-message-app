@@ -300,4 +300,46 @@ const arrayEquality = (a, b) => {
   });
 };
 
+// route to delete conversation will be '/user/conversation'
+router.delete("/conversation/:conversationId", auth, async (req, res) => {
+  // Get contact from params
+  const { conversationId } = req.params;
+
+  try {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ message: "conversation does not exist" });
+    }
+
+    await Conversation.findByIdAndDelete(conversationId);
+
+    // Remove conversation from each recipient's conversations list
+    conversation.recipients.forEach(async (recipient) => {
+      // Get user
+      const user = await User.findOne({ email: recipient });
+      if (user) {
+        // Check if conversation exists in conversation list
+        const conversationExists = user.conversations.includes(conversationId);
+        if (conversationExists) {
+          // Set new conversations list that does not include this conversation
+          const index = user.conversations.indexOf(conversationId);
+          if (index > -1) {
+            user.conversations.splice(index, 1);
+            await User.findByIdAndUpdate(user._id, {
+              conversations: user.conversations,
+            });
+          }
+        }
+      }
+    });
+
+    res.status(200);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "something went wrong removing conversation" });
+  }
+});
+
 module.exports = router;
