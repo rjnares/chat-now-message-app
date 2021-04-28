@@ -342,4 +342,36 @@ router.delete("/conversation/:conversationId", auth, async (req, res) => {
   }
 });
 
+// route to retrieve contact info will be '/user/contact/:contact'
+router.get("/conversation/:conversationId", auth, async (req, res) => {
+  const { conversationId } = req.params;
+  try {
+    console.log(conversationId);
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({ message: "could not find conversation info" });
+    }
+
+    // Get our user
+    const user = await User.findById(req.user.id);
+
+    // Check if conversation exists in conversation list
+    const isConversation = user.conversations.includes(conversationId);
+    if (!isConversation) {
+      return res
+        .status(400)
+        .json({ message: "user is not a recipient in this conversation" });
+    }
+
+    res.status(200).json({ conversation });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(404)
+      .json({ message: "something went wrong fetching contact info" });
+  }
+});
+
 module.exports = router;

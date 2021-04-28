@@ -121,6 +121,18 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const getConversation = async (conversationId) => {
+    let result = { message: "", conversation: null };
+    try {
+      const response = await api.fetchConversation(token, conversationId);
+      result.conversation = response.data.conversation;
+    } catch (error) {
+      result.message = error.response.data.message;
+    } finally {
+      return result;
+    }
+  };
+
   const getUser = useCallback(async () => {
     let serverError = { message: "" };
     try {
@@ -166,6 +178,7 @@ export const AuthProvider = (props) => {
         getContact,
         createConversation,
         fetchConversations,
+        getConversation,
         getUser,
       }}
       {...props}

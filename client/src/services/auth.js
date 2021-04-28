@@ -20,3 +20,6 @@ export const postConversation = (token, name, recipients) =>
 
 export const getConversations = (token) =>
   API.get("conversations", { headers: { token } });
+
+export const fetchConversation = (token, conversationId) =>
+  API.get(`conversation/${conversationId}`, { headers: { token } });
