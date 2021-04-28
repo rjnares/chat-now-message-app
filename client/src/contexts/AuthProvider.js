@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 import * as api from "../services/auth";
@@ -121,31 +121,33 @@ export const AuthProvider = (props) => {
     }
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      let serverError = { message: "" };
-      try {
-        const response = await api.fetchUser(token);
+  const getUser = useCallback(async () => {
+    let serverError = { message: "" };
+    try {
+      const response = await api.fetchUser(token);
 
-        // Save user data in memory
-        setData(response.data);
-      } catch (error) {
-        // If error occurs, we will be in loading state
-        serverError = error.response.data;
-        console.log(serverError);
+      // Save user data in memory
+      setData(response.data);
+    } catch (error) {
+      // If error occurs, we will be in loading state
+      serverError = error.response.data;
+      console.log(serverError);
 
-        if (serverError.message === "Token is invalid or expired") {
-          // clear token from local storage since we need new one from signup/signin
-          // if do not clear token from local storage, then 'UnauthenticatedApp' (which
-          // is used for signup/signin) will not render and we will not be able to get
-          // a new one since we will be stuck with the old token
-          setToken(null);
-        }
+      if (serverError.message === "Token is invalid or expired") {
+        // clear token from local storage since we need new one from signup/signin
+        // if do not clear token from local storage, then 'UnauthenticatedApp' (which
+        // is used for signup/signin) will not render and we will not be able to get
+        // a new one since we will be stuck with the old token
+        setToken(null);
       }
-    };
+    } finally {
+      return serverError;
+    }
+  }, [setToken, token]);
 
+  useEffect(() => {
     if (token) getUser();
-  }, [token, setToken]);
+  }, [token, getUser]);
 
   // Return loading message if we don't have token AND user data
   if (!data.user && token) {
@@ -164,6 +166,7 @@ export const AuthProvider = (props) => {
         getContact,
         createConversation,
         fetchConversations,
+        getUser,
       }}
       {...props}
     />

@@ -11,7 +11,7 @@ const NewConversationModal = () => {
   const conversationNameRef = useRef();
 
   const user = useUser();
-  const { createConversation } = useAuth();
+  const { createConversation, getUser } = useAuth();
 
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitError, setIsSubmitError] = useState(false);
@@ -23,7 +23,7 @@ const NewConversationModal = () => {
     setSubmitMessage("");
     setIsSubmitError(false);
 
-    const result = await createConversation(conversationNameRef.current.value, [
+    let result = await createConversation(conversationNameRef.current.value, [
       ...selectedContacts,
       user.email,
     ]);
@@ -32,12 +32,20 @@ const NewConversationModal = () => {
       setIsSubmitError(true);
       setSubmitMessage(`Error: ${result.message}`);
     } else {
+      // Reset modal for user to use again
       setSelectedContacts([]);
       setSubmitMessage(
         `Success: new conversation '${result.conversation.name}' has been created`
       );
       conversationNameRef.current.value = "";
-      // TODO: Update conversations
+
+      // Update user conversations
+      result = await getUser();
+
+      if (result.message) {
+        setIsSubmitError(true);
+        setSubmitMessage(`Error: ${result.message}`);
+      }
     }
   };
 
