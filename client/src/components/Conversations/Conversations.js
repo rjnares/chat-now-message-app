@@ -8,12 +8,14 @@ import ManageConversationModal from "../ManageConversationModal/ManageConversati
 import { useAuth } from "../../contexts/AuthProvider";
 import { useUser } from "../../contexts/UserProvider";
 
-const Conversations = () => {
+const Conversations = ({
+  selectedConversationIndex,
+  setSelectedConversationIndex,
+}) => {
   const user = useUser();
   const { fetchConversations } = useAuth();
 
   const [conversations, setConversations] = useState([]);
-  const [selectedConversationIndex, setSelectedConversationIndex] = useState(0);
 
   const [apiMessage, setApiMessage] = useState("");
   const [isApiError, setIsApiError] = useState(false);
@@ -36,11 +38,22 @@ const Conversations = () => {
         setIsApiError(true);
       } else {
         setConversations(result.conversations);
+        if (
+          result.conversations.length > 0 &&
+          selectedConversationIndex === -1
+        ) {
+          setSelectedConversationIndex(0);
+        }
       }
     };
 
     getConversations();
-  }, [user, fetchConversations]);
+  }, [
+    user,
+    fetchConversations,
+    setSelectedConversationIndex,
+    selectedConversationIndex,
+  ]);
 
   return (
     <React.Fragment>
@@ -90,7 +103,7 @@ const Conversations = () => {
       <Modal show={isModalOpen} onHide={closeModal}>
         <ManageConversationModal
           conversationId={
-            conversations.length
+            conversations.length > 0 && selectedConversationIndex > -1
               ? conversations[selectedConversationIndex].id
               : null
           }

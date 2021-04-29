@@ -14,7 +14,10 @@ import { useUser } from "../../contexts/UserProvider";
 const CONVERSATIONS_KEY = "conversations";
 const CONTACTS_KEY = "contacts";
 
-const Sidebar = () => {
+const Sidebar = ({
+  selectedConversationIndex,
+  setSelectedConversationIndex,
+}) => {
   const user = useUser();
   const id = user._id;
   const [activeKey, setActiveKey] = useState(CONVERSATIONS_KEY);
@@ -39,7 +42,10 @@ const Sidebar = () => {
         </Nav>
         <Tab.Content className="border-right overflow-auto flex-grow-1">
           <Tab.Pane eventKey={CONVERSATIONS_KEY}>
-            <Conversations />
+            <Conversations
+              selectedConversationIndex={selectedConversationIndex}
+              setSelectedConversationIndex={setSelectedConversationIndex}
+            />
           </Tab.Pane>
           <Tab.Pane eventKey={CONTACTS_KEY}>
             <Contacts />
