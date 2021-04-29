@@ -26,3 +26,6 @@ export const fetchConversation = (token, conversationId) =>
 
 export const deleteConversation = (token, conversationId) =>
   API.delete(`conversation/${conversationId}`, { headers: { token } });
+
+export const postMessage = (token, request) =>
+  API.post("message", { request }, { headers: { token } });

@@ -153,6 +153,23 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const saveMessage = async (conversationId, recipients, message) => {
+    let result = { message: "", conversation: null };
+    const request = {
+      conversationId,
+      recipients,
+      message,
+    };
+    try {
+      const response = await api.postMessage(token, request);
+      result.conversation = response.data.updatedConversation;
+    } catch (error) {
+      result.message = error.response.data.message;
+    } finally {
+      return result;
+    }
+  };
+
   const getUser = useCallback(async () => {
     let serverError = { message: "" };
     try {
@@ -201,6 +218,7 @@ export const AuthProvider = (props) => {
         getConversation,
         getUser,
         removeConversation,
+        saveMessage,
       }}
       {...props}
     />

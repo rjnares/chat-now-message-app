@@ -291,6 +291,41 @@ router.get("/conversations", auth, async (req, res) => {
   }
 });
 
+// route for message post will be '/user/message'
+router.post("/message", auth, async (req, res) => {
+  const { request } = req.body;
+  try {
+    // Get conversation
+    const conversation = await Conversation.findOne({
+      _id: request.conversationId,
+    });
+    if (!conversation) {
+      return res.status(404).json({
+        message: "could not find the given conversation to add message",
+      });
+    }
+
+    const updatedConversation = await Conversation.findByIdAndUpdate(
+      conversation._id,
+      { messages: [...conversation.messages, request.message] },
+      { new: true }
+    );
+
+    if (!updatedConversation) {
+      return res.status(400).json({
+        message: "error occurred updating conversation with new message",
+      });
+    }
+
+    res.status(200).json({ updatedConversation });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "something went wrong creating new message" });
+  }
+});
+
 const arrayEquality = (a, b) => {
   if (a.length !== b.length) return false;
 

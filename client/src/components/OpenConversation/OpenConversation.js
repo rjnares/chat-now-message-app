@@ -14,7 +14,7 @@ const OpenConversation = ({ conversationId }) => {
   const [apiMessage, setApiMessage] = useState("");
   const [isApiError, setIsApiError] = useState(false);
 
-  const { getConversation } = useAuth();
+  const { getConversation, saveMessage } = useAuth();
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -27,7 +27,6 @@ const OpenConversation = ({ conversationId }) => {
         setIsApiError(true);
         setApiMessage(`Error: ${result.message}`);
       } else {
-        console.log(result.conversation);
         setSelectedConversation(result.conversation);
       }
     };
@@ -43,9 +42,29 @@ const OpenConversation = ({ conversationId }) => {
 
   const { sendMessage } = useConversations();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(text);
+
+    const message = {
+      sender: user.email,
+      text,
+    };
+
+    // Save message to messages array in conversation
+    const result = await saveMessage(
+      selectedConversation._id,
+      selectedConversation.recipients,
+      message
+    );
+
+    if (result.message) {
+      console.log(result.message);
+      setIsApiError(true);
+      setApiMessage(`Error: ${result.message}`);
+    } else {
+      // Means successfully saved message to db
+      setSelectedConversation(result.conversation);
+    }
 
     // sendMessage(
     //   selectedConversation.recipients.map((recipient) => recipient.id),
