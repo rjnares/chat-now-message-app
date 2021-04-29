@@ -133,6 +133,26 @@ export const AuthProvider = (props) => {
     }
   };
 
+  const removeConversation = async (conversationId) => {
+    let serverError = { message: "" };
+    try {
+      const response = await api.deleteConversation(token, conversationId);
+
+      // Update saved data user conversations
+      setData((prevData) => ({
+        user: {
+          ...prevData.user,
+          conversations: response.data.updatedConversations,
+        },
+      }));
+    } catch (error) {
+      serverError = error.response.data;
+      console.log(serverError);
+    } finally {
+      return serverError;
+    }
+  };
+
   const getUser = useCallback(async () => {
     let serverError = { message: "" };
     try {
@@ -180,6 +200,7 @@ export const AuthProvider = (props) => {
         fetchConversations,
         getConversation,
         getUser,
+        removeConversation,
       }}
       {...props}
     />

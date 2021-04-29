@@ -35,18 +35,19 @@ const ManageConversationModal = ({ conversationId }) => {
   }, []);
 
   const handleRemoveConversation = async () => {
-    console.log("Remove Convo Button Clicked");
-    // if (contactInfo) {
-    //   setApiMessage("");
-    //   setIsApiError(false);
-    //   const result = await removeContact(contact);
-    //   if (result.message) {
-    //     setApiMessage(`Error: ${result.message}`);
-    //     setIsApiError(true);
-    //   } else {
-    //     setApiMessage(`Success: '${contact}' has been removed from contacts`);
-    //   }
-    // }
+    if (conversationInfo) {
+      setApiMessage("");
+      setIsApiError(false);
+      const result = await removeConversation(conversationId);
+      if (result.message) {
+        setApiMessage(`Error: ${result.message}`);
+        setIsApiError(true);
+      } else {
+        setApiMessage(
+          `Success: '${conversationInfo.name}' has been removed from conversations`
+        );
+      }
+    }
   };
 
   return (

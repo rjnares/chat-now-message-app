@@ -23,3 +23,6 @@ export const getConversations = (token) =>
 
 export const fetchConversation = (token, conversationId) =>
   API.get(`conversation/${conversationId}`, { headers: { token } });
+
+export const deleteConversation = (token, conversationId) =>
+  API.delete(`conversation/${conversationId}`, { headers: { token } });

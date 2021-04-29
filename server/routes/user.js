@@ -274,11 +274,13 @@ router.get("/conversations", auth, async (req, res) => {
     const conversations = Promise.all(
       user.conversations.map(async (c) => {
         const conversation = await Conversation.findById(c);
-        const formattedConversation = {
-          id: conversation._id,
-          name: conversation.name,
-        };
-        return formattedConversation;
+        if (conversation) {
+          const formattedConversation = {
+            id: conversation._id,
+            name: conversation.name,
+          };
+          return formattedConversation;
+        }
       })
     ).then((result) => {
       res.status(200).json(result);
@@ -311,10 +313,12 @@ router.delete("/conversation/:conversationId", auth, async (req, res) => {
       return res.status(404).json({ message: "conversation does not exist" });
     }
 
-    await Conversation.findByIdAndDelete(conversationId);
+    await Conversation.findByIdAndDelete(conversation._id);
+
+    let updatedUser = null;
 
     // Remove conversation from each recipient's conversations list
-    conversation.recipients.forEach(async (recipient) => {
+    for (const recipient of conversation.recipients) {
       // Get user
       const user = await User.findOne({ email: recipient });
       if (user) {
@@ -325,15 +329,23 @@ router.delete("/conversation/:conversationId", auth, async (req, res) => {
           const index = user.conversations.indexOf(conversationId);
           if (index > -1) {
             user.conversations.splice(index, 1);
-            await User.findByIdAndUpdate(user._id, {
-              conversations: user.conversations,
-            });
+            const updatedRecipient = await User.findByIdAndUpdate(
+              user._id,
+              {
+                conversations: user.conversations,
+              },
+              { new: true }
+            );
+
+            if (updatedRecipient.id === req.user.id) {
+              updatedUser = updatedRecipient;
+            }
           }
         }
       }
-    });
+    }
 
-    res.status(200);
+    res.status(200).json({ updatedConversations: updatedUser.conversations });
   } catch (error) {
     console.log(error);
     res
@@ -346,7 +358,6 @@ router.delete("/conversation/:conversationId", auth, async (req, res) => {
 router.get("/conversation/:conversationId", auth, async (req, res) => {
   const { conversationId } = req.params;
   try {
-    console.log(conversationId);
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
       return res
