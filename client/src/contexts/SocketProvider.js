@@ -11,17 +11,18 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }) => {
   const user = useUser();
-  const id = user._id;
 
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const newSocket = io(process.env.REACT_APP_SERVER_URL, { query: { id } });
+    const newSocket = io(process.env.REACT_APP_SERVER_URL, {
+      query: { id: user.email },
+    });
 
     setSocket(newSocket);
 
     return () => newSocket.close();
-  }, [id]);
+  }, [user]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>

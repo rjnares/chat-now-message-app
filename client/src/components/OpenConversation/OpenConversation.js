@@ -3,12 +3,14 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
 
-import { useConversations } from "../../contexts/ConversationsProvider";
 import { useAuth } from "../../contexts/AuthProvider";
 import { useUser } from "../../contexts/UserProvider";
+import { useSocket } from "../../contexts/SocketProvider";
 
 const OpenConversation = ({ conversationId }) => {
   const user = useUser();
+  const socket = useSocket();
+
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [text, setText] = useState("");
   const [apiMessage, setApiMessage] = useState("");
@@ -40,8 +42,6 @@ const OpenConversation = ({ conversationId }) => {
     if (node) node.scrollIntoView({ smooth: true });
   }, []);
 
-  const { sendMessage } = useConversations();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,17 +61,48 @@ const OpenConversation = ({ conversationId }) => {
       console.log(result.message);
       setIsApiError(true);
       setApiMessage(`Error: ${result.message}`);
-    } else {
-      // Means successfully saved message to db
-      setSelectedConversation(result.conversation);
+      return;
     }
 
-    // sendMessage(
-    //   selectedConversation.recipients.map((recipient) => recipient.id),
-    //   text
-    // );
+    // Means successfully saved message to db
+    // setSelectedConversation(result.conversation);
+
+    // Send message to everyone so they can pull new messages
+    socket.emit("send-message", {
+      id: selectedConversation._id,
+      recipients: selectedConversation.recipients,
+    });
+
     setText("");
   };
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    const fetchConversation = async (convoId) => {
+      setApiMessage("");
+      setIsApiError(false);
+
+      const result = await getConversation(convoId);
+
+      if (result.message) {
+        setIsApiError(true);
+        setApiMessage(`Error: ${result.message}`);
+      } else {
+        setSelectedConversation(result.conversation);
+      }
+    };
+
+    socket.on("receive-message", (id) => {
+      if (id === conversationId) {
+        fetchConversation(id);
+      }
+    });
+
+    return () => socket.off("receive-message");
+  }, [socket, conversationId, getConversation]);
 
   return selectedConversation ? (
     <div className="d-flex flex-column flex-grow-1">

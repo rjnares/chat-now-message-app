@@ -57,11 +57,11 @@ export const ConversationsProvider = ({ children }) => {
     [setConversations]
   );
 
-  useEffect(() => {
-    if (socket == null) return;
-    socket.on("receive-message", addMessageToConversation);
-    return () => socket.off("receive-message");
-  }, [socket, addMessageToConversation]);
+  // useEffect(() => {
+  //   if (socket == null) return;
+  //   socket.on("receive-message", addMessageToConversation);
+  //   return () => socket.off("receive-message");
+  // }, [socket, addMessageToConversation]);
 
   const sendMessage = (recipients, text) => {
     socket.emit("send-message", { recipients, text });

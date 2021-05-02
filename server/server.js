@@ -57,15 +57,9 @@ io.on("connection", (socket) => {
   console.log(`Connected UID: ${id}`);
 
   // Broadcast sent message to all sockets (I THINK)
-  socket.on("send-message", ({ recipients, text }) => {
+  socket.on("send-message", ({ id, recipients }) => {
     recipients.forEach((recipient) => {
-      const newRecipients = recipients.filter((r) => r !== recipient);
-      newRecipients.push(id);
-      socket.broadcast.to(recipient).emit("receive-message", {
-        recipients: newRecipients,
-        sender: id,
-        text,
-      });
+      io.to(recipient).emit("receive-message", id);
     });
   });
 
