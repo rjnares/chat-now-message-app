@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
@@ -46,6 +47,8 @@ const UnauthenticatedApp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setInputError("");
+
     if (isSignup) {
       const errors = [];
 
@@ -82,8 +85,9 @@ const UnauthenticatedApp = () => {
       result = await signin(formData);
     }
 
-    if (result.message) setInputError(`Error: ${result.message}`);
-    else setInputError("");
+    if (result.message) {
+      setInputError(`Error: ${result.message}`);
+    }
   };
 
   return (

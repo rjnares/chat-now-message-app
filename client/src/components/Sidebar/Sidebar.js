@@ -9,10 +9,17 @@ import Contacts from "../Contacts/Contacts";
 import NewConversationModal from "../NewConversationModal/NewConversationModal";
 import NewContactModal from "../NewContactModal/NewContactModal";
 
+import { useUser } from "../../contexts/UserProvider";
+
 const CONVERSATIONS_KEY = "conversations";
 const CONTACTS_KEY = "contacts";
 
-const Sidebar = ({ id }) => {
+const Sidebar = ({
+  selectedConversationIndex,
+  setSelectedConversationIndex,
+}) => {
+  const user = useUser();
+  const id = user._id;
   const [activeKey, setActiveKey] = useState(CONVERSATIONS_KEY);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,7 +42,10 @@ const Sidebar = ({ id }) => {
         </Nav>
         <Tab.Content className="border-right overflow-auto flex-grow-1">
           <Tab.Pane eventKey={CONVERSATIONS_KEY}>
-            <Conversations />
+            <Conversations
+              selectedConversationIndex={selectedConversationIndex}
+              setSelectedConversationIndex={setSelectedConversationIndex}
+            />
           </Tab.Pane>
           <Tab.Pane eventKey={CONTACTS_KEY}>
             <Contacts />
@@ -49,11 +59,7 @@ const Sidebar = ({ id }) => {
         </Button>
       </Tab.Container>
       <Modal show={isModalOpen} onHide={closeModal}>
-        {isConversationsOpen ? (
-          <NewConversationModal closeModal={closeModal} />
-        ) : (
-          <NewContactModal closeModal={closeModal} />
-        )}
+        {isConversationsOpen ? <NewConversationModal /> : <NewContactModal />}
       </Modal>
     </div>
   );
