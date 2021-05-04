@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
@@ -84,7 +85,9 @@ const UnauthenticatedApp = () => {
       result = await signin(formData);
     }
 
-    if (result.message) setInputError(`Error: ${result.message}`);
+    if (result.message) {
+      setInputError(`Error: ${result.message}`);
+    }
   };
 
   return (

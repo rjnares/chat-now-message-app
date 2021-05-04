@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 import Sidebar from "../Sidebar/Sidebar";
 import OpenConversation from "../OpenConversation/OpenConversation";
-import { useConversations } from "../../contexts/ConversationsProvider";
 import { useUser } from "../../contexts/UserProvider";
 import NavBar from "../NavBar/NavBar";
 

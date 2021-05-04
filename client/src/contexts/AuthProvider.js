@@ -15,15 +15,12 @@ export const AuthProvider = (props) => {
 
   const signup = async (formData) => {
     let serverError = { message: "" };
-
     try {
       const response = await api.signup(formData);
-
-      // Save token in local storage
       setToken(response.data.token);
     } catch (error) {
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
     } finally {
       return serverError;
     }
@@ -31,15 +28,12 @@ export const AuthProvider = (props) => {
 
   const signin = async (formData) => {
     let serverError = { message: "" };
-
     try {
       const response = await api.signin(formData);
-
-      // Save token in local storage
       setToken(response.data.token);
     } catch (error) {
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
     } finally {
       return serverError;
     }
@@ -54,14 +48,12 @@ export const AuthProvider = (props) => {
     let serverError = { message: "" };
     try {
       const response = await api.addContact(token, email);
-
-      // Update saved data user contacts
       setData((prevData) => ({
         user: { ...prevData.user, contacts: response.data.updatedContacts },
       }));
     } catch (error) {
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
     } finally {
       return serverError;
     }
@@ -69,17 +61,14 @@ export const AuthProvider = (props) => {
 
   const removeContact = async (contact) => {
     let serverError = { message: "" };
-
     try {
       const response = await api.deleteContact(token, contact);
-
-      // Update saved data user contacts
       setData((prevData) => ({
         user: { ...prevData.user, contacts: response.data.updatedContacts },
       }));
     } catch (error) {
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
     } finally {
       return serverError;
     }
@@ -91,6 +80,7 @@ export const AuthProvider = (props) => {
       const response = await api.fetchContact(token, contact);
       result.contact = response.data.contactInfo;
     } catch (error) {
+      console.log(error);
       result.message = error.response.data.message;
     } finally {
       return result;
@@ -103,6 +93,7 @@ export const AuthProvider = (props) => {
       const response = await api.postConversation(token, name, recipients);
       result.conversation = response.data.conversation;
     } catch (error) {
+      console.log(error);
       result.message = error.response.data.message;
     } finally {
       return result;
@@ -115,6 +106,7 @@ export const AuthProvider = (props) => {
       const response = await api.getConversations(token);
       result.conversations = response.data;
     } catch (error) {
+      console.log(error);
       result.message = error.response.data.message;
     } finally {
       return result;
@@ -137,8 +129,6 @@ export const AuthProvider = (props) => {
     let serverError = { message: "" };
     try {
       const response = await api.deleteConversation(token, conversationId);
-
-      // Update saved data user conversations
       setData((prevData) => ({
         user: {
           ...prevData.user,
@@ -146,8 +136,8 @@ export const AuthProvider = (props) => {
         },
       }));
     } catch (error) {
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
     } finally {
       return serverError;
     }
@@ -164,6 +154,7 @@ export const AuthProvider = (props) => {
       const response = await api.postMessage(token, request);
       result.conversation = response.data.updatedConversation;
     } catch (error) {
+      console.log(error);
       result.message = error.response.data.message;
     } finally {
       return result;
@@ -174,19 +165,11 @@ export const AuthProvider = (props) => {
     let serverError = { message: "" };
     try {
       const response = await api.fetchUser(token);
-
-      // Save user data in memory
       setData(response.data);
     } catch (error) {
-      // If error occurs, we will be in loading state
+      console.log(error);
       serverError = error.response.data;
-      console.log(serverError);
-
       if (serverError.message === "Token is invalid or expired") {
-        // clear token from local storage since we need new one from signup/signin
-        // if do not clear token from local storage, then 'UnauthenticatedApp' (which
-        // is used for signup/signin) will not render and we will not be able to get
-        // a new one since we will be stuck with the old token
         setToken(null);
       }
     } finally {
@@ -198,7 +181,6 @@ export const AuthProvider = (props) => {
     if (token) getUser();
   }, [token, getUser]);
 
-  // Return loading message if we don't have token AND user data
   if (!data.user && token) {
     return "Loading...";
   }

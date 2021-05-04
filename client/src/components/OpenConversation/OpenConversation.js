@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
 import { useAuth } from "../../contexts/AuthProvider";
 import { useUser } from "../../contexts/UserProvider";
@@ -58,7 +59,6 @@ const OpenConversation = ({ conversationId }) => {
     );
 
     if (result.message) {
-      console.log(result.message);
       setIsApiError(true);
       setApiMessage(`Error: ${result.message}`);
       return;
@@ -140,6 +140,14 @@ const OpenConversation = ({ conversationId }) => {
               </div>
             );
           })}
+          {apiMessage && (
+            <Alert
+              className="d-flex justify-content-center p-1"
+              variant={isApiError ? "danger" : "success"}
+            >
+              {apiMessage}
+            </Alert>
+          )}
         </div>
       </div>
       <Form onSubmit={handleSubmit}>
