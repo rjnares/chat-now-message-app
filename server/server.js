@@ -36,7 +36,7 @@ const io = require("socket.io")(server, {
 // Simple route handler to test if server
 // is running on localhost:PORT
 app.get("/", (req, res) => {
-  res.json({ message: "API Working" });
+  res.json({ message: "API Server Working" });
 });
 
 /**

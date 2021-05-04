@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const newSocket = io(process.env.REACT_APP_SERVER_URL, {
+    const newSocket = io("https://chat-now-message-app.herokuapp.com", {
       query: { id: user.email },
     });
 

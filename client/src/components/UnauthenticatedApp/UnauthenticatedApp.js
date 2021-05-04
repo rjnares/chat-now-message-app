@@ -173,6 +173,7 @@ const UnauthenticatedApp = () => {
           <Button block variant="primary" type="submit">
             Submit
           </Button>
+          {/*
           <Button
             block
             variant="primary"
@@ -180,7 +181,7 @@ const UnauthenticatedApp = () => {
             onClick={populateFields}
           >
             Populate Fields
-          </Button>
+          </Button>*/}
           <Button
             block
             variant="link"

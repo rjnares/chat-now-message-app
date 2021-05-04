@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: `${process.env.REACT_APP_SERVER_URL}/user/`,
+  baseURL: "https://chat-now-message-app.herokuapp.com/user/",
 });
 
 export const signup = (data) => API.post("signup", data);
